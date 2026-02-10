@@ -11,6 +11,9 @@ sqlx = { version = "0.8", features = [
     "mysql",
     "chrono",
 ] }
+tokio = { version = "1", features = ["full"] }
+dotenvy = "0.15"
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
+
