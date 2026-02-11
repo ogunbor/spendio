@@ -16,6 +16,7 @@ dotenvy = "0.15"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 bcrypt = "0.18.0"
+jsonwebtoken = "10.3.0"
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
