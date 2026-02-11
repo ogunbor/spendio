@@ -1,9 +1,10 @@
-use actix_web::{App, HttpServer, middleware::from_fn, web};
+use actix_web::{middleware::from_fn, web, App, HttpServer};
 use tokio::sync::Mutex;
 
 mod controllers;
 mod db;
 mod middleware;
+mod utils;
 
 struct AppState {
     db: Mutex<sqlx::MySqlPool>,
