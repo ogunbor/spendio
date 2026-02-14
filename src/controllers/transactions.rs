@@ -2,10 +2,7 @@ use actix_web::{delete, get, post, put, web, HttpRequest, HttpResponse, Responde
 use serde::Deserialize;
 use serde_json::json;
 
-use crate::{
-    db::{self, transactions},
-    utils, AppState,
-};
+use crate::{db, utils, AppState};
 
 #[get("/transactions")]
 pub async fn index(state: web::Data<AppState>, req: HttpRequest) -> impl Responder {
@@ -58,7 +55,7 @@ pub async fn create(
 
     let transaction = db::transactions::create(&db, user.id, &data).await;
 
-    let user_balance = if data.r#type == "DEBIT" {
+    let user_balance = if utils::is_debit(&data.r#type) {
         user.balance - data.amount
     } else {
         user.balance + data.amount
@@ -66,7 +63,7 @@ pub async fn create(
 
     db::user::update_balance(&db, user.id, user_balance).await;
 
-    let category_balance = if data.r#type == "DEBIT" {
+    let category_balance = if utils::is_debit(&data.r#type) {
         category.balance - data.amount
     } else {
         category.balance + data.amount
@@ -167,7 +164,7 @@ pub async fn destroy(
         .await
         .unwrap();
 
-    if transaction.r#type == "CREDIT"
+    if utils::is_credit(&transaction.r#type)
         && (transaction.amount > user.balance || transaction.amount > category.balance)
     {
         return HttpResponse::BadRequest().json(json!({
@@ -178,7 +175,7 @@ pub async fn destroy(
 
     db::transactions::destroy(&db, transaction.id).await;
 
-    let user_balance = if transaction.r#type == "CREDIT" {
+    let user_balance = if utils::is_credit(&transaction.r#type) {
         user.balance - transaction.amount
     } else {
         user.balance + transaction.amount
@@ -186,7 +183,7 @@ pub async fn destroy(
 
     db::user::update_balance(&db, user.id, user_balance).await;
 
-    let category_balance = if transaction.r#type == "CREDIT" {
+    let category_balance = if utils::is_credit(&transaction.r#type) {
         category.balance - transaction.amount
     } else {
         category.balance + transaction.amount
